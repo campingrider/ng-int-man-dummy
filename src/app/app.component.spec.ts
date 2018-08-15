@@ -16,12 +16,13 @@ describe('AppComponent', () => {
   it(`should have as title 'ng-int-man-dummy'`, async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('ng-int-man-dummy');
+    expect(app.title).toBeTruthy();
   }));
   it('should render title in a h1 tag', async(() => {
     const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.debugElement.componentInstance;
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to ng-int-man-dummy!');
+    expect(compiled.querySelector('h1').textContent).toContain(app.title);
   }));
 });

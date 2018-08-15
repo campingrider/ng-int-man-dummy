@@ -1,0 +1,127 @@
+main {
+  max-width:80vw;
+  padding:2em 5vh;
+  background-color:#FdF5E6;
+  border-color:#cdc5b6;
+  border-width: 3px;
+  border-style: solid;
+  margin:2em auto;
+  border-bottom-right-radius:5vh;
+  border-top-left-radius:5vh;
+  box-shadow:1em 1em rgba(109, 104, 96, 0.75);
+}
+
+header {
+  border-width: 2px 0;
+  border-style: solid;
+  border-color: black;
+}
+
+header h1 {
+  text-shadow:2px 2px rgba(109, 104, 96, 0.75);
+}
+
+header > p {
+  font-size: 2em;
+  text-align: center;
+}
+
+form.order {
+  text-align: left;
+}
+
+div.meals {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+fieldset.meal {
+  margin:1em;
+  flex:1 0 15em;
+  box-shadow:0.25em 0.25em rgba(109, 104, 96, 0.75);
+  transition:box-shadow 0.2s;
+  transition:border-color 0.2s;
+  padding:0.5em;
+}
+
+fieldset.meal:hover {
+  box-shadow:0.3em 0.3em black;
+  border-color:black;
+}
+
+fieldset.meal > legend {
+  text-align:center;
+  transition:font-weight 0.2s;
+}
+
+fieldset.meal:hover > legend {
+  font-weight:bold;
+}
+
+fieldset.meal > p:first-of-type {
+  display:grid;
+  align-content: space-around;
+  justify-content: space-evenly;
+  grid-gap:0.5em;
+  grid-template-columns:auto auto;
+  grid-template-rows:auto;
+}
+
+fieldset.meal > p:first-of-type > img {
+  height: 3em;
+  align-self:center;
+  display: block;
+}
+
+fieldset.meal > p:first-of-type > span {
+  display: block;
+  align-self:center;
+}
+
+fieldset.meal > ul {
+  list-style-type: none;
+  grid-template-columns:auto auto;
+  padding:0;
+}
+
+fieldset.meal > ul li {
+  display:inline-block;
+}
+
+fieldset.meal input[type=number] {
+  width:3em;
+  text-align:center;
+}
+
+fieldset.buttons {
+  border:none;
+  text-align:right;
+}
+
+fieldset.buttons > button {
+  font-size:2em;
+  border-width:5px;
+  border-color: #555;
+  border-bottom-right-radius:0.25em;
+  border-top-left-radius:0.25em;
+  border-style: outset;
+  background-color:#CCC;
+  transition:border-color 0.5s;
+  transition:box-shadow 0.1s;
+  padding:0.5em;
+  box-shadow:2px 2px rgba(109, 104, 96, 0.75);
+}
+
+fieldset.buttons > button:hover {
+  border-color:#999;
+  background-color:#EEE;
+  box-shadow:3px 3px rgba(109, 104, 96, 0.75);
+}
+
+fieldset.buttons > button:active {
+  border-color:#999;
+  background-color:#CCC;
+  border-style:inset;
+  box-shadow:1px 1px rgba(109, 104, 96, 0.75);
+}
