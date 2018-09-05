@@ -1,11 +1,12 @@
 <main style="text-align:center">
   <header>
-    <h1>
+    <intman-switcher></intman-switcher>
+    <h1 intmanId="CasaTitle">
       Willkommen bei {{ title }}!
     </h1>
-    <p>{{subtitle}}</p>
+    <p intmanId="CasaSubtitle">{{subtitle}}</p>
   </header>
-  <p>Unsere Pizza ist eine ganz eigene Kreation, die es sonst nirgends gibt. Nicht umsonst sind wir kein echter Pizzaservice, sondern eine reine Fiktion, um die Funktionsweise einer Bibliothek zur Internationalisierung zu demonstrieren. So backen wir unsere Pizzakreationen nicht selbst, sondern pflücken sie von einem fiktiven Baum. Mancher fragt sich nun vielleicht, wie die Pizza an den Baum kommt. Nun, darauf haben nicht einmal wir eine Antwort. <strong>Die Hauptsache ist</strong>, dass alle unsere Pizzen <em>mit viel Liebe zum Detail</em> über den Ladentisch geschoben werden. Das Ganze ist etwa genauso sinnlos wie dieser Text oder jeglicher Versuch, uns in unserer Einzigartigkeit nachzuahmen.</p>
+  <p intmanId="CasaDescription">Unsere Pizza ist eine ganz eigene Kreation, die es sonst nirgends gibt. Nicht umsonst sind wir kein echter Pizzaservice, sondern eine reine Fiktion, um die Funktionsweise einer Bibliothek zur Internationalisierung zu demonstrieren. So backen wir unsere Pizzakreationen nicht selbst, sondern pflücken sie von einem fiktiven Baum. Mancher fragt sich nun vielleicht, wie die Pizza an den Baum kommt. Nun, darauf haben nicht einmal wir eine Antwort. <strong>Die Hauptsache ist</strong>, dass alle unsere Pizzen <em>mit viel Liebe zum Detail</em> über den Ladentisch geschoben werden. Das Ganze ist etwa genauso sinnlos wie dieser Text oder jeglicher Versuch, uns in unserer Einzigartigkeit nachzuahmen.</p>
   <h1>Online-Bestellung</h1>
   <p>Wählen Sie aus unserem reichhaltigen Angebot.</p>
   <form method="GET" class="order">
@@ -27,7 +28,6 @@
       <button>Bestellung aufgeben →</button>
     </fieldset>
   </form>
-  <intman-int-man-lib></intman-int-man-lib>
   <intman-admin></intman-admin>
 </main>
 

@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { IntManLibModule } from 'int-man-lib';
+import { SwitcherComponent, IdDirective } from 'projects/int-man-lib/src/public_api';
 
 @NgModule({
   declarations: [

@@ -8,7 +8,10 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build_lib": "ng build --prod int-man-lib"
+    "build_lib": "ng build --prod int-man-lib",
+    "npm_pack": "cd dist/int-man-lib && npm pack",
+    "package": "npm run build_lib && npm run npm_pack",
+    "build_serve": "npm run build_lib && ng serve"
   },
   "private": true,
   "dependencies": {
