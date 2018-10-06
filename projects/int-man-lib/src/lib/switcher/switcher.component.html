@@ -1,6 +1,29 @@
-<aside>
-  <p>Bitte wählen Sie Ihre Sprache:</p>
+<aside *ngIf="variant==='dropdown'">
+  <p intmanId="IntManInternalChooseLanguage">Bitte wählen Sie Ihre Sprache:</p>
   <select size='1' [(ngModel)]="lang">
-    <option *ngFor="let l of langs">{{l}}</option>
+    <option *ngFor="let l of langs" value="{{l.id}}">{{l.title}}</option>
   </select>
+</aside>
+
+<aside *ngIf="variant==='radio'">
+  <fieldset>
+    <legend intmanId="IntManInternalChooseLanguage">Bitte wählen Sie Ihre Sprache:</legend>
+    <p *ngFor="let l of langs; let i=index">
+      <input type="radio" name="IntManSwitcherRadio" value="{{l.id}}" id="IntManSwitcherRadio{{i}}" [(ngModel)]="lang">
+      <label for="IntManSwitcherRadio{{i}}">{{l.title}}</label>
+    </p>
+  </fieldset>
+</aside>
+
+<aside *ngIf="variant==='select'">
+  <p intmanId="IntManInternalChooseLanguage">Bitte wählen Sie Ihre Sprache:</p>
+  <select size='{{langs.length}}' [(ngModel)]="lang">
+    <option *ngFor="let l of langs" value="{{l.id}}">{{l.title}}</option>
+  </select>
+</aside>
+
+<aside *ngIf="variant==='buttons'">
+  <p intmanId="IntManInternalChooseLanguage">Bitte wählen Sie Ihre Sprache:
+    <button *ngFor="let l of langs" (click)="buttonClick(l.id)">{{l.title}}</button>
+  </p>
 </aside>

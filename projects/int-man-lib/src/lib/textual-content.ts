@@ -1,4 +1,6 @@
+import { Translation } from './translation';
 import { TextContainer } from './text-container';
+import { Language } from './language';
 
 /**
  * This class represents any kind of DOM text node and manages its behaviour
@@ -7,50 +9,115 @@ export class TextualContent {
   container: TextContainer;
   id: string;
   index: number;
-  nativeElement: any;
-  translations: {};
-  lang: string;
+  currentTextNode: any;
+  translatedTextNodes: {};
+  currentLangId: string;
 
-  constructor(container: any, index: number, nativeElement: any) {
+  constructor(container: any, index: number, currentTextNode: any) {
     this.container = container;
     this.index = index;
-    this.nativeElement = nativeElement;
-    this.lang = container.lang;
+    this.currentTextNode = currentTextNode;
 
-    this.translations = {};
+    this.translatedTextNodes = {};
 
-    // Use default text as translation for default language
-    this.translations[this.lang] = this.nativeElement;
+
+    // either use container language or do nothing as the container will inform the content whenever it gets defined
+    if (container.lang !== undefined) {
+      this.initiateLanguage(container.lang);
+    }
 
     // generate id from container id
     this.id = container.id + '-' + index;
   }
 
   /**
+   * encapsulates initiation of language as there is no way of being sure that language is already loaded on creation
+   */
+  public initiateLanguage(lang: Language): void {
+    this.currentLangId = lang.id;
+    // Use default text as translation for default language
+    this.translatedTextNodes[this.currentLangId] = this.currentTextNode;
+  }
+
+  /**
    * Display the contents of the associated element in another language.
    */
-  public switchLanguage (to: string): void {
-    // only switch language if not already set to this language
-    if (to !== this.lang) {
+  public switchLanguage (targetLangId: string): void {
+
+    // never run if translation and native Element are same - otherwise text will disappear!
+    if (this.translatedTextNodes[targetLangId] !== this.currentTextNode) {
 
       // use translation from storage or get from service
-      if (this.translations[to] !== undefined) {
+      if (this.translatedTextNodes[targetLangId] !== undefined) {
 
         // replace content with translated content
         const renderer = this.container.renderer;
-        renderer.insertBefore(this.nativeElement.parentNode, this.translations[to], this.nativeElement);
-        renderer.removeChild(this.nativeElement.parentNode, this.nativeElement);
-        this.nativeElement = this.translations[to];
-        this.lang = to;
+        const parent = this.currentTextNode.parentNode;
+
+        renderer.insertBefore(parent, this.translatedTextNodes[targetLangId], this.currentTextNode);
+        renderer.removeChild(parent, this.currentTextNode);
+        this.currentTextNode = this.translatedTextNodes[targetLangId];
+        this.currentLangId = targetLangId;
 
         // trigger check for containers language
         this.container.checkLanguage();
       } else {
-        // TODO: Übersetzung anfordern und switchLanguage daraufhin erneut triggern
-        this.translations[to] = this.container.renderer.createText('Text in Sprache ' + to);
-        this.switchLanguage(to);
+        // ask container for translation and run once again
+        this.container.getTranslations(targetLangId).subscribe(translations => {
+          if (translations.length === 1) {
+            this.translatedTextNodes[targetLangId] = this.container.renderer.createText(translations[0].contents[this.index]);
+            this.switchLanguage(targetLangId);
+          } else {
+
+            // fallback no. 1 - if there is no translation, try to find another compatible language
+            // as languages starting with i- or x- aren't necessarily related to one another (RFC1766), only use 2-letter-codes
+            if (targetLangId.substr(0, 2) !== 'i-' && targetLangId.substr(0, 2) !== 'x-') {
+              this.container.getTranslations(targetLangId.substr(0, 2)).subscribe(compTrans => {
+                if (compTrans.length > 0) {
+
+                  // prefer universal phrases
+                  let chosenTrans: Translation;
+                  compTrans.forEach(t => { if (t.langId === targetLangId.substr(0, 2)) { chosenTrans = t; }});
+                  if (chosenTrans === undefined) { chosenTrans = compTrans[0]; }
+
+                  console.log('Chosen: ' + chosenTrans.langId);
+
+                  // switch this textual content to compatible language
+                  // construct new Language to ensure no alternative language of this language is chosen
+                  this.switchLanguage(chosenTrans.langId);
+                } else {
+                  // fallback no. 2 - if there is no compatible language for a single textual content,
+                  // switch container to alternative language in order to keep the containers context together
+                  this.container.switchToAlternativeLanguage();
+                }
+              });
+            }
+
+            this.log('Es gibt '
+                      + translations.length
+                      + ' Übersetzungen für Baustein '
+                      + this.id + ' in Sprache '
+                      + targetLangId
+                      + '. Es fand deshalb keine Ersetzung statt.');
+          }
+        });
       }
     }
+  }
+
+  /**
+   * Log a message within the message service provided in its container.
+   */
+  public log(message: string): void {
+    this.container.log(message);
+  }
+
+  /**
+   * reset translation cache and display new texts
+   */
+  public flushTranslations(): void {
+    this.translatedTextNodes = undefined;
+    this.switchLanguage(this.currentLangId);
   }
 
 

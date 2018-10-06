@@ -26,7 +26,7 @@ window.addEventListener('load',function(){
       if (params['quantity'][i] != '0') {
         if (params['names'][i]) {
           orderedSomething = true;
-          let spaces=""; for (let j = params['names'][i].length; j < 30; j++) { spaces += " "; }
+          let spaces=""; while(spaces.length < params['names'][i].length) { spaces += " "; }
           message += "\t"+params['quantity'][i]+"x \t "+params['names'][i]+spaces;
           if (params['extras'][i]) {
             message += "(Extras: "+params['extras'][i]+")\n";

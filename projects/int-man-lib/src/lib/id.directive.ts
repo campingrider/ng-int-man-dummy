@@ -20,7 +20,7 @@ export class IdDirective implements OnInit {
 
   ngOnInit() {
     this.textContainer = new TextContainer(this.intmanId, this.el.nativeElement, this.renderer, this.intManLibService);
-    this.textContainer.switchLanguage(this.intManLibService.getLanguage());
+    this.intManLibService.getCurrentLanguage().subscribe(lang => this.textContainer.switchLanguage(lang));
   }
 
 }

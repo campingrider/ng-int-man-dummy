@@ -5,13 +5,19 @@ import { IdDirective } from './id.directive';
 import { SwitcherComponent } from './switcher/switcher.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
-  declarations: [IntManLibComponent, AdminComponent, IdDirective, SwitcherComponent],
+  declarations: [
+    IntManLibComponent,
+    AdminComponent,
+    IdDirective,
+    SwitcherComponent],
   exports: [AdminComponent, SwitcherComponent, IdDirective]
 })
 export class IntManLibModule { }
