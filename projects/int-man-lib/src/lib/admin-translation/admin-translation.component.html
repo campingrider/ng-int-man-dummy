@@ -5,8 +5,9 @@
   <p *ngIf="notMatching"><strong>Die Übersetzung passt nicht zur DOM-Signatur und muss korrigiert werden. Bitte passen Sie vor dem Speichern die Inhalte der Felder an:</strong></p>
   <p *ngIf="altLangDisplayed !== undefined"><strong>Es existiert aktuell keine eigene Übersetzung. Der Container wird deshalb nach <em>{{altLangDisplayed.title}}</em> übersetzt. </strong>Füllen Sie die Felder aus, um eine eigene Übersetzung zu erzeugen:</p>
   <p *ngFor="let defText of defTexts; let i = index">
-    <label><strong>{{getDomPath(i)}}:</strong> {{defText}}<textarea *ngIf="!isDefLang && !altLangPreferred[i]" type="text" [(ngModel)]="translationContents[i]"></textarea></label>
-    <label *ngIf="!isDefLang"><input type="checkbox" [(ngModel)]="altLangPreferred[i]"> Übersetzung in alternative Sprache bevorzugen</label>
+    <label><strong>{{getDomPath(i)}}:</strong> {{defText}}<textarea *ngIf="!isDefLang && !altLangPreferred[i]" type="text" [(ngModel)]="translationContents[i]" (keyup)="detectChange()" (input)="detectChange()" (change)="detectChange()"></textarea></label>
+    <label *ngIf="!isDefLang" class="intman-alt-lang-option"><input type="checkbox" [(ngModel)]="altLangPreferred[i]" (change)="detectChange()"> Übersetzung in alternative Sprache bevorzugen</label>
   </p>
+  <p class="intman-translation-buttons intman-buttons"><button *ngIf="changedSomething" (click)="save()">Änderungen speichern!</button><button *ngIf="changedSomething" (click)="reset()">Änderungen zurücksetzen</button></p>
 </fieldset>
 

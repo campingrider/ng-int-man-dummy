@@ -3,6 +3,7 @@ import { TextContainer } from '../text-container';
 import { Language } from '../language';
 import { IntManLibService } from '../int-man-lib.service';
 import { ContainerSetting } from '../container-setting';
+import { Translation } from '../translation';
 
 @Component({
   selector: 'intman-admin-translation',
@@ -17,6 +18,7 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
   public isDefLang = false;
   public notMatching = false;
   public altLangDisplayed: Language;
+  public changedSomething = false;
 
   public translationContents: string[] = Array();
   public altLangPreferred: boolean[] = Array();
@@ -35,7 +37,7 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges() {
     // initialize vars
-    this.isDefLang = false; this.notMatching = false; this.altLangDisplayed = undefined;
+    this.isDefLang = false; this.notMatching = false; this.altLangDisplayed = undefined; this.changedSomething = false;
 
     // initialize content array with empty strings - defTexts don't need to be initialized
     this.translationContents = Array(); this.altLangPreferred = Array(); this.defTexts = Array();
@@ -153,6 +155,27 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     return domPath;
+  }
+
+  /** change status if there was some change */
+  public detectChange(): void { this.changedSomething = true; }
+
+  /** resets form data */
+  public reset(): void { this.ngOnChanges(); }
+
+  /**
+  * saves current form data to server
+  */
+  public save(): void {
+    // assemble new Translation object
+    const newT = new Translation();
+    newT.id = this.containerSetting.id + '-' + this.lang.id;
+    newT.langId = this.lang.id;
+    newT.containerId = this.containerSetting.id;
+    newT.contents = this.translationContents;
+    newT.preferAltLang = this.altLangPreferred;
+    // save object to server
+    this.intManLibService.updateTranslation(newT).subscribe();
   }
 
 }

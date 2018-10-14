@@ -165,8 +165,8 @@ export class TextContainer {
    * removes all translations from cache and triggers cache flush on all contents
    */
   public flushTranslations(): void {
-    this.translationCache = undefined;
-    this.contents.forEach(cont => cont.flushTranslations);
+    this.translationCache = { };
+    this.contents.forEach(cont => cont.flushTranslations());
   }
 
   /**

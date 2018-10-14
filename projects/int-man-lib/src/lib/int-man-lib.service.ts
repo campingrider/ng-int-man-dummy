@@ -177,25 +177,54 @@ export class IntManLibService {
   }
 
   /**
+   * POSTs a new Language to the server
+   */
+  public addLanguage(newLang: Language): Observable<Language> {
+    const url = `${this.dataUrl}/languages`;
+    return this.http.post<Language>(url, newLang, httpOptions).pipe(
+      tap((l: Language) => this.log(`language with id ${l.id} saved to server.`)),
+      // register new language
+      tap((l: Language) => this.adminComponents.forEach(aC => aC.langs.push(l))),
+      // renew switcher components
+      tap((l: Language) => this.switcherComponents.forEach(sC => sC.langs.push(l)) ),
+      catchError(this.handleError<Language>('addLanguage'))
+    );
+  }
+
+  /**
+   * PUTs an updated Language to the server
+   */
+  updateLanguage(newLang: Language): Observable<any> {
+    const url = `${this.dataUrl}/languages`;
+    return this.http.put<any>(url, newLang, httpOptions).pipe(
+      tap(_ => this.log(`language with id ${newLang.id} updated on server.`)),
+      // register new language
+      tap(_ => this.adminComponents.forEach(aC => this.getLanguages().subscribe(langs => aC.langs = langs))),
+      // renew switcher components
+      tap(_ => this.switcherComponents.forEach(sC => this.getLanguages().subscribe(
+        langs => sC.langs = langs.filter(lang => lang.selectable)
+      ))),
+      catchError(this.handleError<Language>('updateLanguage'))
+    );
+  }
+
+  /**
    * POSTs a new Translation to the server
    */
   public addTranslation(newTranslation: Translation): Observable<Translation> {
-    console.log(newTranslation);
     const url = `${this.dataUrl}/translations`;
-    const ret = this.http.post<Translation>(url, newTranslation, httpOptions).pipe(
+    return this.http.post<Translation>(url, newTranslation, httpOptions).pipe(
       tap((t: Translation) => this.log(`translation with id ${t.id} saved to server.`)),
       // register new translation
       tap((t: Translation) => this.translationComponents
         .filter(tC => t.langId === tC.lang.id && t.containerId === tC.containerSetting.id)
         .forEach(tC => tC.ngOnChanges())),
       // flush cached translations if lang is not default lang
-      tap(_ => { this.defLang.subscribe(defLang => { if (defLang.id !== newTranslation.langId) {
+      tap((t: Translation) => { this.defLang.subscribe(defLang => { if (defLang.id !== t.langId) {
         this.containers.forEach(c => c.flushTranslations());
       } } ); } ),
       catchError(this.handleError<Translation>('addTranslation'))
     );
-    console.log(ret);
-    return ret;
   }
 
   /**

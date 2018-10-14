@@ -107,8 +107,6 @@ export class TextualContent {
                   compTrans.forEach(t => { if (t.langId === targetLangId.substr(0, 2)) { chosenTrans = t; }});
                   if (chosenTrans === undefined) { chosenTrans = compTrans[0]; }
 
-                  console.log('Chosen: ' + chosenTrans.langId);
-
                   // switch this textual content to compatible language
                   // construct new Language to ensure no alternative language of this language is chosen
                   this.switchLanguage(chosenTrans.langId);
@@ -148,7 +146,7 @@ export class TextualContent {
    * reset translation cache and display new texts
    */
   public flushTranslations(): void {
-    this.translatedTextNodes = undefined;
+    this.translatedTextNodes = { };
     this.switchLanguage(this.currentLangId);
   }
 
