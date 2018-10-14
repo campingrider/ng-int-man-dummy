@@ -1,3 +1,4 @@
+import { ContainerSetting } from './container-setting';
 import { IntManLibService } from './int-man-lib.service';
 import { TextualContent } from './textual-content';
 import { Renderer2 } from '@angular/core';
@@ -15,17 +16,18 @@ export class TextContainer {
   public altLangDisplayed: Language;
   public contents: TextualContent[];
 
+  private containerSetting: ContainerSetting;
+
   private altLangNotification: any;
 
-  private intManLibService: IntManLibService;
   private translationCache = { };
 
-  constructor(id: string, nativeElement: any, renderer: Renderer2, intManLibService: IntManLibService) {
+  private defaultTranslations: string[];
+
+  constructor(id: string, nativeElement: any, renderer: Renderer2, private intManLibService: IntManLibService) {
     this.id = id;
     this.nativeElement = nativeElement;
     this.renderer = renderer;
-
-    this.intManLibService = intManLibService;
 
     this.intManLibService.getCurrentLanguage().subscribe(
       lang => {
@@ -39,8 +41,99 @@ export class TextContainer {
     // calculate domSignature and gather textual contents
     this.domSignature = this.exploreDOM(this.nativeElement);
 
-
     this.intManLibService.registerContainer(this);
+
+    // load containerSetting or create it and update if necessary
+    this.intManLibService.getContainerSettings(this.id).subscribe(
+      setting => {
+        if (setting === undefined || this.domSignature === setting.domSignature) {
+          const newSetting = new ContainerSetting();
+          newSetting.id = this.id;
+          newSetting.domSignature = this.domSignature;
+          newSetting.contains = this.contents.length;
+          if (setting === undefined) {
+            // create new setting
+            this.intManLibService.addContainerSetting(newSetting).subscribe(s => {
+              this.containerSetting = s;
+              // trigger registration of default translation
+              this.registerDefaultTranslation(undefined, (this.containerSetting.contains - 1));
+            });
+          } else {
+            // update setting
+            this.intManLibService.updateContainerSetting(this.id, newSetting).subscribe();
+            this.containerSetting = newSetting;
+            // trigger registration of default translation
+            this.registerDefaultTranslation(undefined, (this.containerSetting.contains - 1));
+          }
+        } else {
+          this.containerSetting = setting;
+          // trigger registration of default translation
+          this.registerDefaultTranslation(undefined, (this.containerSetting.contains - 1));
+
+        }
+      }
+    );
+  }
+
+  /**
+   * receive default translation from contents and interact with server when all are received
+   */
+  public registerDefaultTranslation(text: string, index: number): void {
+
+    if (this.defaultTranslations === undefined) {
+      this.defaultTranslations = Array();
+    }
+
+    while (this.defaultTranslations.length <= index) { this.defaultTranslations.push(undefined); }
+
+    if (text !== undefined) { this.defaultTranslations[index] = text; }
+
+    // interact with server only after containerSetting is loaded
+    if (this.containerSetting !== undefined && this.defaultTranslations.length === this.containerSetting.contains) {
+
+      let registeredAll = true;
+      this.defaultTranslations.forEach(t => registeredAll = registeredAll && (t !== undefined));
+
+      if (registeredAll) {
+
+        // check whether service knows default translation, create otherwise, update on detected changes
+        this.intManLibService.defLang.subscribe(defLang => {
+          this.intManLibService.getTranslation(this.id, defLang.id).subscribe(defTranslation => {
+            // only use translations matching language exactly
+
+            defTranslation = defTranslation.filter(t => t.langId === defLang.id);
+
+            if (defTranslation.length === 0) {
+
+              // create default translation
+              const newTranslation = new Translation();
+              newTranslation.containerId = this.id;
+              newTranslation.langId = defLang.id;
+              newTranslation.id = this.id + '-' + defLang.id;
+              newTranslation.preferAltLang = Array();
+              while (newTranslation.preferAltLang.length < this.containerSetting.contains) { newTranslation.preferAltLang.push(false); }
+              newTranslation.contents = this.defaultTranslations;
+
+              this.intManLibService.addTranslation(newTranslation).subscribe();
+
+            } else {
+              let identicalTexts = true;
+              // compare default translation to registered translations
+              defTranslation[0].contents.forEach((t, i) => identicalTexts = identicalTexts && t === this.defaultTranslations[i]);
+
+              if (!identicalTexts) {
+                defTranslation[0].contents = this.defaultTranslations;
+                this.intManLibService.updateTranslation(defTranslation[0]).subscribe();
+              }
+            }
+          });
+        });
+
+      }
+    }
+
+    /*
+    */
   }
 
   /**
@@ -58,9 +151,20 @@ export class TextContainer {
   }
 
   /**
+   * this function is called upon destruction of the connected component
+   */
+  public destroy(): void {
+    this.intManLibService.unregisterContainer(this);
+    while (this.contents.length > 0) {
+      this.contents.pop().destroy();
+    }
+    this.translationCache = {};
+  }
+
+  /**
    * removes all translations from cache and triggers cache flush on all contents
    */
-  public flushTranslations() {
+  public flushTranslations(): void {
     this.translationCache = undefined;
     this.contents.forEach(cont => cont.flushTranslations);
   }
@@ -153,18 +257,20 @@ export class TextContainer {
     if (node.nodeName === '#text') {
 
       // if it's a text node, generate new textual content object and register it
-      const textualContent = new TextualContent(this, this.contents.length, node);
+      const textualContent = new TextualContent(this, this.contents.length, node, this.intManLibService);
       this.contents.push(textualContent);
       signature += node.nodeName;
 
     } else {
-      signature += '<' + node.nodeName + '>';
+      if (node.nodeName.substr(0, 1) !== '#') {
+        signature += '<' + node.nodeName + '>';
+      }
     }
 
     // if there are child nodes, invoke method recursively
     node.childNodes.forEach(cur => signature += this.exploreDOM(cur));
 
-    if (node.nodeName !== '#text') {
+    if (node.nodeName.substr(0, 1) !== '#') {
       signature += '</' + node.nodeName + '>';
     }
 

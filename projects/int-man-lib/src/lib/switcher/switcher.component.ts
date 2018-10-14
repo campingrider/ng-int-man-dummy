@@ -1,5 +1,5 @@
 import { IntManLibService } from './../int-man-lib.service';
-import { Component, OnInit, Input, HostListener } from '@angular/core';
+import { Component, OnInit, Input, HostListener, OnDestroy } from '@angular/core';
 import { Language } from '../language';
 
 @Component({
@@ -7,7 +7,7 @@ import { Language } from '../language';
   templateUrl: './switcher.component.html',
   styleUrls: ['./switcher.component.css']
 })
-export class SwitcherComponent implements OnInit {
+export class SwitcherComponent implements OnInit, OnDestroy {
 
   langs: Language[];
 
@@ -18,8 +18,13 @@ export class SwitcherComponent implements OnInit {
   constructor(private intManLibService: IntManLibService) { }
 
   ngOnInit() {
-    this.intManLibService.getLanguages().subscribe(languages => this.langs = languages);
+    this.intManLibService.getLanguages().subscribe(languages => this.langs = languages.filter(lang => lang.selectable));
     this.intManLibService.defLang.subscribe(lang => this.lang = lang.id);
+    this.intManLibService.registerSwitcherComponent(this);
+  }
+
+  ngOnDestroy() {
+    this.intManLibService.unregisterSwitcherComponents(this);
   }
 
   @HostListener('change', ['$event.target'])

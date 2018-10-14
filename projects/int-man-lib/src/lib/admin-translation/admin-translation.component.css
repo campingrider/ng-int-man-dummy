@@ -1,0 +1,24 @@
+.intmanAdminTranslation {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.intmanAdminTranslation p input[type="text"], .intmanAdminTranslation p code {
+  display:block;
+  width: 100%;
+}
+
+.intmanAdminTranslation p textarea {
+  display:block;
+  width: 100%;
+  height: 4ex;
+}
+
+.intmanAdminTranslation label.intman-alt-lang-option {
+  display:block;
+  width: 100%;
+}
+
+.invisible {
+  visibility: hidden;
+}

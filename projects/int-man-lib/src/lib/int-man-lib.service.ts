@@ -1,10 +1,15 @@
 import { TextContainer } from './text-container';
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, tap, flatMap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Language } from './language';
 import { Translation } from './translation';
+import { AdminTranslationComponent } from './admin-translation/admin-translation.component';
+import { AdminLanguageComponent } from './admin-language/admin-language.component';
+import { AdminComponent } from './admin/admin.component';
+import { SwitcherComponent } from './switcher/switcher.component';
+import { ContainerSetting } from './container-setting';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json'})
@@ -21,16 +26,56 @@ export class IntManLibService {
 
   private curLang: Language;
 
-  private containers: TextContainer[];
+  private containers: TextContainer[] = [];
 
-  /**
-   * Register some text container to the general service in order to receive updates
-   */
-  public registerContainer(which: TextContainer): void {
-    if (this.containers === undefined) {
-      this.containers = [];
+  private translationComponents: AdminTranslationComponent[] = [];
+
+  private languageComponents: AdminLanguageComponent[] = [];
+
+  private adminComponents: AdminComponent[] = [];
+
+  private switcherComponents: SwitcherComponent[] = [];
+
+  /** Register some text container to the general service in order to receive updates */
+  public registerContainer(which: TextContainer): void { this.containers.push(which); }
+
+  /** Unregister some text container from the general service in order to receive updates */
+  public unregisterContainer(which: TextContainer): void { this.containers = this.containers.filter(comp => comp !== which); }
+
+  /** Register some switcher component to the general service in order to receive updates */
+  public registerSwitcherComponent(which: SwitcherComponent): void { this.switcherComponents.push(which); }
+
+  /** Unregister some switcher component from the general service in order to receive updates */
+  public unregisterSwitcherComponents(which: SwitcherComponent): void {
+    this.switcherComponents = this.switcherComponents.filter(comp => comp !== which);
+  }
+
+  /** Register some translation component to the general service in order to receive updates */
+  public registerTranslationComponent(which: AdminTranslationComponent): void { this.translationComponents.push(which); }
+
+  /** Unregister some translation component from the general service in order to receive updates */
+  public unregisterTranslationComponent(which: AdminTranslationComponent): void {
+    this.translationComponents = this.translationComponents.filter(comp => comp !== which);
+  }
+
+  /** Register some language component to the general service in order to receive updates */
+  public registerLanguageComponent(which: AdminLanguageComponent): void {
+    this.languageComponents.push(which);
+  }
+
+  /** Unregister some language component from the general service in order to receive updates */
+  public unregisterLanguageComponent(which: AdminLanguageComponent): void {
+    if (this.languageComponents !== undefined) {
+      this.languageComponents = this.languageComponents.filter(comp => comp !== which);
     }
-    this.containers.push(which);
+  }
+
+  /** Register some admin component to the general service in order to receive updates */
+  public registerAdminComponent(which: AdminComponent): void { this.adminComponents.push(which); }
+
+  /** Unregister some admin component from the general service in order to receive updates */
+  public unregisterAdminComponent(which: AdminComponent): void {
+    this.adminComponents = this.adminComponents.filter(comp => comp !== which);
   }
 
   /**
@@ -54,11 +99,13 @@ export class IntManLibService {
     this.containers.forEach(container => {
       container.switchLanguage(to);
     });
+    this.switcherComponents.forEach(comp => {
+      comp.lang = to.id;
+    });
   }
 
   /**
    * gets a single language from server by server id
-   * ToDo: generate language definition for 'en'/'fr'/... from 'en-GB', 'fr-FR', ...
    */
   public getLanguage(id: string): Observable<Language> {
     const url = `${this.dataUrl}/languages/${id}`;
@@ -106,6 +153,99 @@ export class IntManLibService {
   }
 
   /**
+   * gets all container settings from server
+   */
+  public getAllContainerSettings(): Observable<ContainerSetting[]> {
+    const url = `${this.dataUrl}/containerSettings/`;
+    return this.http.get<ContainerSetting[]>(url)
+    .pipe(
+      tap(_ => this.log(`fetched settings for all containers`)),
+      catchError(this.handleError<ContainerSetting[]>(`getAllContainerSettings`))
+    );
+  }
+
+  /**
+   * gets settings for a specific container from server
+   */
+  public getContainerSettings(containerId: string): Observable<ContainerSetting> {
+    const url = `${this.dataUrl}/containerSettings/${containerId}`;
+    return this.http.get<ContainerSetting>(url)
+    .pipe(
+      tap(_ => this.log(`fetched settings for container id=${containerId}`)),
+      catchError(this.handleError<ContainerSetting>(`getContainerSettings id=${containerId}`, undefined))
+    );
+  }
+
+  /**
+   * POSTs a new Translation to the server
+   */
+  public addTranslation(newTranslation: Translation): Observable<Translation> {
+    console.log(newTranslation);
+    const url = `${this.dataUrl}/translations`;
+    const ret = this.http.post<Translation>(url, newTranslation, httpOptions).pipe(
+      tap((t: Translation) => this.log(`translation with id ${t.id} saved to server.`)),
+      // register new translation
+      tap((t: Translation) => this.translationComponents
+        .filter(tC => t.langId === tC.lang.id && t.containerId === tC.containerSetting.id)
+        .forEach(tC => tC.ngOnChanges())),
+      // flush cached translations if lang is not default lang
+      tap(_ => { this.defLang.subscribe(defLang => { if (defLang.id !== newTranslation.langId) {
+        this.containers.forEach(c => c.flushTranslations());
+      } } ); } ),
+      catchError(this.handleError<Translation>('addTranslation'))
+    );
+    console.log(ret);
+    return ret;
+  }
+
+  /**
+   * PUTs an updated Translation to the server
+   */
+  updateTranslation(newTranslation: Translation): Observable<any> {
+    const url = `${this.dataUrl}/translations`;
+    return this.http.put<any>(url, newTranslation, httpOptions).pipe(
+      tap(_ => this.log(`translation with id ${newTranslation.id} updated on server.`)),
+      // register new translation
+      tap(_ => this.translationComponents
+        .filter(tC => newTranslation.langId === tC.lang.id && newTranslation.containerId === tC.containerSetting.id)
+        .forEach(tC => tC.ngOnChanges())),
+      // flush cached translations if lang is not default lang
+      tap(_ => { this.defLang.subscribe(defLang => { if (defLang.id !== newTranslation.langId) {
+        this.containers.forEach(c => c.flushTranslations());
+      } } ); } ),
+      catchError(this.handleError<any>('updateTranslation'))
+    );
+  }
+
+  /**
+   * POSTs a new ContainerSetting to the server
+   */
+  public addContainerSetting(containerSetting: ContainerSetting): Observable<ContainerSetting> {
+    const url = `${this.dataUrl}/containerSettings`;
+    return this.http.post<ContainerSetting>(url, containerSetting, httpOptions).pipe(
+      tap((cS: ContainerSetting) => this.log(`ContainerSetting with id ${cS.id} saved to server.`)),
+      // register new setting to admin components
+      tap((cS: ContainerSetting) => this.adminComponents.forEach(aC => aC.containerSettings.push(cS))),
+      catchError(this.handleError<ContainerSetting>('addContainerSetting'))
+    );
+  }
+
+  /**
+   * PUTs an updated ContainerSetting to the server
+   */
+  updateContainerSetting(id: string, newSetting: ContainerSetting): Observable<any> {
+    const url = `${this.dataUrl}/containerSettings`;
+    return this.http.put<any>(url, newSetting, httpOptions).pipe(
+      tap(_ => this.log(`ContainerSetting with id ${newSetting.id} updated on server.`)),
+      // register new setting to admin components
+      tap(_ => this.adminComponents.forEach(aC => {
+        aC.containerSettings[aC.containerSettings.findIndex(cS => cS.id === newSetting.id)] = newSetting;
+      })),
+      catchError(this.handleError<any>('updateContainerSetting'))
+    );
+  }
+
+  /**
    * Handle Http operation that failed.
    * Let the app continue.
    */
@@ -113,7 +253,7 @@ export class IntManLibService {
     return (error: any): Observable<T> => {
 
       // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
+      // console.error(error); // log to console instead
 
       // TODO: better job of transforming error for user consumption
       this.log(`${operation} failed: ${error.message}`);

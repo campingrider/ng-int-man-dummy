@@ -1,0 +1,8 @@
+<fieldset class="intmanAdminLanguage">
+  <legend>Spracheinstellungen: {{lang.title}}</legend>
+  <p>Sprach-ID nach <a href="https://tools.ietf.org/html/rfc1766">RFC1766</a>: <strong>{{lang.id}}</strong></p>
+  <p><label>Bezeichnung: <input type="text" [(ngModel)]="lang.title"></label></p>
+  <p *ngIf="!isDefLang"><label><input type="checkbox" [(ngModel)]="lang.selectable">Sprache ist auswählbar</label></p>
+  <p *ngIf="isDefLang"><strong>Es handelt sich um die Standardsprache.</strong></p>
+  <p *ngIf="!isDefLang" [className]="lang.selectable?'visible':'invisible'"><label>Meldung bei nicht verfügbarer Übersetzung: <textarea [(ngModel)]="lang.unavailableText"></textarea></label></p>
+</fieldset>

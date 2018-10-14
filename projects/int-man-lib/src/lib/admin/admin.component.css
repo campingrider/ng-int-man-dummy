@@ -1,0 +1,53 @@
+section {
+  background-color: #eee;
+  padding-top: 1ex;
+  border: 1px solid #555;
+}
+
+summary h2, summary h3, summary h4 {
+  display: inline-block;
+}
+
+details {
+  text-align: left;
+  padding: 0 1ex;
+}
+
+details {
+  border-style: solid;
+  border-color: #555;
+  border-width: 1px 0;
+}
+
+details > summary, section > h1 {
+  background-color: #eee;
+  background-image: linear-gradient(to bottom, #eee, #bbb);
+  padding: 1ex;
+  margin: 0 -1ex;
+}
+
+section > h1 {
+  margin: 0;
+}
+
+details > summary {
+  cursor: pointer;
+}
+
+.intmanAdminTileContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+intman-admin-translation, intman-admin-language {
+  display: block;
+  flex:1 0 25em;
+  padding:1ex 0 1ex 1ex;
+  box-sizing: border-box;
+}
+
+
+intman-admin-translation:last-child, intman-admin-language:last-child {
+  margin-right: auto;
+}

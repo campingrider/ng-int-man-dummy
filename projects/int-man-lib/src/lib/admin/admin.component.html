@@ -1,3 +1,48 @@
-<p>
-  admin works!
-</p>
+<section class="intmanAdmin">
+
+  <h1>Internationalisation Manager: Verwaltung</h1>
+
+  <div class="intmanAdminMessages">
+    <intman-admin-message *ngFor="let m of messages" [message]="m"></intman-admin-message>
+  </div>
+  <details>
+    <summary>
+      <h2>Sprachen: Verwaltung</h2>
+    </summary>
+    <form class="intmanAdminLanguages intmanAdminTileContainer">
+      <intman-admin-language *ngFor="let l of langs" [lang]="l"></intman-admin-language>
+    </form>
+  </details>
+
+
+  <details>
+    <summary>
+      <h2>Übersetzungen nach Textblock</h2>
+    </summary>
+    <p>Wählen Sie einen Textblock:
+      <select size="1" [(ngModel)]="containerId">
+        <option value="">-- Bitte wählen --</option>
+        <option *ngFor="let c of containerSettings">{{c.id}}</option>
+      </select>
+    </p>
+    <form class="intmanAdminTranslations intmanAdminTileContainer" *ngIf="findContainerSetting(containerId)!==undefined">
+      <intman-admin-translation *ngFor="let l of langs" [lang]="l" [containerSetting]="findContainerSetting(containerId)"></intman-admin-translation>
+    </form>
+  </details>
+
+  <details>
+    <summary>
+      <h2>Übersetzungen nach Sprache</h2>
+    </summary>
+    <p>Wählen Sie eine Sprache:
+      <select size="1" [(ngModel)]="langId">
+        <option value="">-- Bitte wählen --</option>
+        <option *ngFor="let l of langs" value="{{l.id}}">{{l.title}}</option>
+      </select>
+    </p>
+    <form class="intmanAdminTranslations intmanAdminTileContainer" *ngIf="findLang(langId)!==undefined">
+      <intman-admin-translation *ngFor="let c of containerSettings" [lang]="findLang(langId)" [containerSetting]="c"></intman-admin-translation>
+    </form>
+  </details>
+
+</section>

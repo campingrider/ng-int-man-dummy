@@ -1,5 +1,7 @@
 export class Translation {
-  public container: string;
+  public id: string;
+  public containerId: string;
   public contents: string[];
   public langId: string;
+  public preferAltLang: boolean[];
 }

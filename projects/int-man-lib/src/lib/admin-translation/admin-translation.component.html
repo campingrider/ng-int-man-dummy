@@ -1,0 +1,12 @@
+<fieldset class="intmanAdminTranslation">
+  <legend>{{containerSetting.id}} in {{lang.title}}</legend>
+  <p><strong>DOM-Signatur des Containers:</strong> <code>{{containerSetting.domSignature}}</code></p>
+  <p *ngIf="isDefLang"><strong>Der Inhalt in der Standardsprache muss im Code der Anwendung angepasst werden.</strong></p>
+  <p *ngIf="notMatching"><strong>Die Übersetzung passt nicht zur DOM-Signatur und muss korrigiert werden. Bitte passen Sie vor dem Speichern die Inhalte der Felder an:</strong></p>
+  <p *ngIf="altLangDisplayed !== undefined"><strong>Es existiert aktuell keine eigene Übersetzung. Der Container wird deshalb nach <em>{{altLangDisplayed.title}}</em> übersetzt. </strong>Füllen Sie die Felder aus, um eine eigene Übersetzung zu erzeugen:</p>
+  <p *ngFor="let defText of defTexts; let i = index">
+    <label><strong>{{getDomPath(i)}}:</strong> {{defText}}<textarea *ngIf="!isDefLang && !altLangPreferred[i]" type="text" [(ngModel)]="translationContents[i]"></textarea></label>
+    <label *ngIf="!isDefLang"><input type="checkbox" [(ngModel)]="altLangPreferred[i]"> Übersetzung in alternative Sprache bevorzugen</label>
+  </p>
+</fieldset>
+

@@ -1,11 +1,11 @@
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, Renderer2, OnDestroy } from '@angular/core';
 import { TextContainer } from './text-container';
 import { IntManLibService } from './int-man-lib.service';
 
 @Directive({
   selector: '[intmanId]'
 })
-export class IdDirective implements OnInit {
+export class IdDirective implements OnInit, OnDestroy {
 
   constructor(
     private el: ElementRef,
@@ -21,6 +21,10 @@ export class IdDirective implements OnInit {
   ngOnInit() {
     this.textContainer = new TextContainer(this.intmanId, this.el.nativeElement, this.renderer, this.intManLibService);
     this.intManLibService.getCurrentLanguage().subscribe(lang => this.textContainer.switchLanguage(lang));
+  }
+
+  ngOnDestroy() {
+    this.textContainer.destroy();
   }
 
 }
