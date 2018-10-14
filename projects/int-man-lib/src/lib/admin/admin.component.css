@@ -42,7 +42,7 @@ details > summary {
 
 intman-admin-translation, intman-admin-language {
   display: block;
-  flex:1 0 25em;
+  flex:1 0 20em;
   padding:1ex 0 1ex 1ex;
   box-sizing: border-box;
 }

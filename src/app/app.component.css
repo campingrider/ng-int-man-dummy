@@ -158,3 +158,8 @@ fieldset.buttons > button:active {
   border-style:inset;
   box-shadow:1px 1px rgba(109, 104, 96, 0.75);
 }
+
+intman-switcher {
+  float: right;
+  margin: 0 0 1em 1em;
+}
