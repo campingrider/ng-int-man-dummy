@@ -15,6 +15,9 @@ export class AdminLanguageComponent implements OnInit, OnDestroy, OnChanges {
   public changedSomething = false;
   public isDefLang = false;
 
+  public deletionRequested = false;
+  public deletionPossible = false;
+
   constructor(private intManLibService: IntManLibService) { }
 
   ngOnInit() {
@@ -22,6 +25,7 @@ export class AdminLanguageComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges() {
+    this.deletionPossible = false; this.deletionRequested = false;
     if (this.initialLang === undefined) {
       this.initialLang = new Language(this.lang.id, this.lang.title);
       this.initialLang.selectable = this.lang.selectable;
@@ -33,6 +37,22 @@ export class AdminLanguageComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     this.intManLibService.unregisterLanguageComponent(this);
+  }
+
+  /** request deletion - calculate whether deletion is possible */
+  public requestDeletion() {
+    this.deletionPossible = false;
+    this.deletionRequested = true;
+    this.intManLibService.getTranslationsByLanguage(this.lang.id).subscribe(
+      translations => { if (translations.length === 0) { this.deletionPossible = true; } }
+    );
+  }
+
+  /** delete language on user input */
+  public deleteLanguage() {
+    if (this.deletionRequested && this.deletionPossible) {
+      this.intManLibService.deleteLanguage(this.lang).subscribe(_ => this.lang = undefined);
+    }
   }
 
   /** change status if there was some change */

@@ -20,6 +20,8 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
   public altLangDisplayed: Language;
   public changedSomething = false;
 
+  public deletionRequested = false;
+
   public translationContents: string[] = Array();
   public altLangPreferred: boolean[] = Array();
   public defTexts: string[] = Array();
@@ -38,6 +40,7 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges() {
     // initialize vars
     this.isDefLang = false; this.notMatching = false; this.altLangDisplayed = undefined; this.changedSomething = false;
+    this.deletionRequested = false;
 
     // initialize content array with empty strings - defTexts don't need to be initialized
     this.translationContents = Array(); this.altLangPreferred = Array(); this.defTexts = Array();
@@ -155,6 +158,22 @@ export class AdminTranslationComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     return domPath;
+  }
+
+  /** request deletion */
+  public requestDeletion() {
+    this.deletionRequested = true;
+  }
+
+  /** delete language on user input */
+  public deleteTranslation() {
+    const container = this.containerSetting;
+    if (this.deletionRequested) {
+      this.intManLibService.deleteTranslation(container.id + '-' + this.lang.id).subscribe(_ => {
+        // check whether we still need the container
+        this.intManLibService.checkDeleteContainer(container.id);
+      });
+    }
   }
 
   /** change status if there was some change */

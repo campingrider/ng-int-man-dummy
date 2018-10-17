@@ -19,7 +19,14 @@ details {
   border-width: 1px 0;
 }
 
-details > summary, section > h1 {
+section > h1 {
+  background-color: #eee;
+  background-image: linear-gradient(to top, #eee, #bbb);
+  padding: 1ex;
+  margin: 0 -1ex;
+}
+
+details > summary {
   background-color: #eee;
   background-image: linear-gradient(to bottom, #eee, #bbb);
   padding: 1ex;
@@ -40,7 +47,7 @@ details > summary {
   justify-content: space-between;
 }
 
-intman-admin-translation, intman-admin-language {
+intman-admin-translation, intman-admin-language, .intman-tile {
   display: block;
   flex:1 0 20em;
   padding:1ex 0 1ex 1ex;

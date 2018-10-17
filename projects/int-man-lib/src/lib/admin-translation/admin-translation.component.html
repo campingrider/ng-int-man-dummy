@@ -9,5 +9,11 @@
     <label *ngIf="!isDefLang" class="intman-alt-lang-option"><input type="checkbox" [(ngModel)]="altLangPreferred[i]" (change)="detectChange()"> Übersetzung in alternative Sprache bevorzugen</label>
   </p>
   <p class="intman-translation-buttons intman-buttons"><button *ngIf="changedSomething" (click)="save()">Änderungen speichern!</button><button *ngIf="changedSomething" (click)="reset()">Änderungen zurücksetzen</button></p>
+  <p *ngIf="defTexts.length > 0 && altLangDisplayed === undefined && !isDefLang" class="intman-delete-buttons intman-buttons">
+    <button *ngIf="!deletionRequested" (click)="requestDeletion()">Übersetzung löschen</button>
+    <span *ngIf="deletionRequested">Sind Sie sicher, dass Sie diese Übersetzung löschen möchten?</span>
+    <button *ngIf="deletionRequested" (click)="deletionRequested=false">Nein, nicht löschen!</button>
+    <button *ngIf="deletionRequested" (click)="deleteTranslation()">Ja, Übersetzung löschen!</button>
+  </p>
 </fieldset>
 

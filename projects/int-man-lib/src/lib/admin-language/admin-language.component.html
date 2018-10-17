@@ -5,5 +5,12 @@
   <p *ngIf="!isDefLang"><label><input type="checkbox" [(ngModel)]="lang.selectable" (change)="detectChange()">Sprache ist auswählbar</label></p>
   <p *ngIf="isDefLang"><strong>Es handelt sich um die Standardsprache.</strong></p>
   <p *ngIf="!isDefLang && lang.selectable"><label>Meldung bei nicht verfügbarer Übersetzung: <textarea [(ngModel)]="lang.unavailableText" (keyup)="detectChange()" (input)="detectChange()" (change)="detectChange()"></textarea></label></p>
-  <p class="intman-translation-buttons intman-buttons"><button *ngIf="changedSomething" (click)="save()">Änderungen speichern!</button><button *ngIf="changedSomething" (click)="reset()">Änderungen zurücksetzen</button></p>
+  <p class="intman-language-buttons intman-buttons"><button *ngIf="changedSomething" (click)="save()">Änderungen speichern!</button><button *ngIf="changedSomething" (click)="reset()">Änderungen zurücksetzen</button></p>
+  <p *ngIf="!isDefLang" class="intman-delete-buttons intman-buttons">
+    <button *ngIf="!deletionRequested" (click)="requestDeletion()">Sprache löschen</button>
+    <span *ngIf="deletionRequested && !deletionPossible">Sie müssen zunächst alle Übersetzungen in dieser Sprache löschen!</span>
+    <span *ngIf="deletionRequested && deletionPossible">Sind Sie sicher, dass Sie die Sprache <strong>{{lang.title}}</strong> löschen möchten?</span>
+    <button *ngIf="deletionRequested && deletionPossible" (click)="deletionRequested=false">Nein, nicht löschen!</button>
+    <button *ngIf="deletionRequested && deletionPossible" (click)="deleteLanguage()">Ja, {{lang.title}} löschen!</button>
+  </p>
 </fieldset>

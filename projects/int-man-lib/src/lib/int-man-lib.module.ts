@@ -6,7 +6,6 @@ import { SwitcherComponent } from './switcher/switcher.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { AdminMessageComponent } from './admin-message/admin-message.component';
 import { AdminLanguageComponent } from './admin-language/admin-language.component';
 import { AdminTranslationComponent } from './admin-translation/admin-translation.component';
 
@@ -21,7 +20,6 @@ import { AdminTranslationComponent } from './admin-translation/admin-translation
     AdminComponent,
     IdDirective,
     SwitcherComponent,
-    AdminMessageComponent,
     AdminLanguageComponent,
     AdminTranslationComponent],
   exports: [AdminComponent, SwitcherComponent, IdDirective]

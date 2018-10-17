@@ -122,13 +122,6 @@ export class TextualContent {
                 }
               });
             }
-
-            this.log('Es gibt '
-                      + translations.length
-                      + ' Übersetzungen für Baustein '
-                      + this.id + ' in Sprache '
-                      + targetLangId
-                      + '. Es fand deshalb keine Ersetzung statt.');
           }
         });
       }
@@ -148,6 +141,13 @@ export class TextualContent {
   public flushTranslations(): void {
     this.translatedTextNodes = { };
     this.switchLanguage(this.currentLangId);
+    /*
+    const currentLangId = this.currentLangId;
+    this.intManLibService.defLang.subscribe(defLang => {
+      this.switchLanguage(defLang.id);
+      if (defLang.id !== currentLangId) { this.switchLanguage(currentLangId); }
+    });
+    */
   }
 
 

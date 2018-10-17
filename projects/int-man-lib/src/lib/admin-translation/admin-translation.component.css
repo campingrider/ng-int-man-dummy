@@ -3,7 +3,7 @@
   box-sizing: border-box;
 }
 
-.intmanAdminTranslation p input[type="text"], .intmanAdminTranslation p code {
+.intmanAdminTranslation p input[type="text"], .intmanAdminTranslation p code, p.intman-delete-buttons span {
   display:block;
   width: 100%;
 }

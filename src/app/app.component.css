@@ -15,12 +15,6 @@ header {
   border-width: 2px 0;
   border-style: solid;
   border-color: black;
-  /*
-  background-image: url("/assets/img/treesketch_pd.png");
-  background-position: 10%;
-  background-repeat: no-repeat;
-  background-size: auto 100%;*/
-
   display:grid;
   grid-template-columns: 15% 70% 15%;
   grid-template-rows: 60% 40%;

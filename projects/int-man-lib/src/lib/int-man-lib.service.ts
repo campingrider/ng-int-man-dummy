@@ -1,7 +1,7 @@
 import { TextContainer } from './text-container';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, tap, flatMap } from 'rxjs/operators';
+import { catchError, tap, flatMap, map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Language } from './language';
 import { Translation } from './translation';
@@ -148,7 +148,19 @@ export class IntManLibService {
     return this.http.get<Translation[]>(url)
     .pipe(
       tap(_ => this.log(`fetched translation for container id=${containerId} with all languages`)),
-      catchError(this.handleError<Translation[]>(`getLanguage id=${containerId} with all languages`))
+      catchError(this.handleError<Translation[]>(`getTranslations id=${containerId} with all languages`))
+    );
+  }
+
+  /**
+   * gets all translations for a given language
+   */
+  public getTranslationsByLanguage(langId: string): Observable<Translation[]> {
+    const url = `${this.dataUrl}/translations/?langId=${langId}`;
+    return this.http.get<Translation[]>(url).pipe(
+      map((translations: Translation[]) => translations.filter(trans => trans.langId === langId)),
+      tap(_ => this.log(`fetched translation for language id=${langId} for all containers`)),
+      catchError(this.handleError<Translation[]>(`getTranslationsByLanguage langId=${langId} for all containers`))
     );
   }
 
@@ -187,6 +199,8 @@ export class IntManLibService {
       tap((l: Language) => this.adminComponents.forEach(aC => aC.langs.push(l))),
       // renew switcher components
       tap((l: Language) => this.switcherComponents.forEach(sC => sC.langs.push(l)) ),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<Language>('addLanguage'))
     );
   }
@@ -194,7 +208,7 @@ export class IntManLibService {
   /**
    * PUTs an updated Language to the server
    */
-  updateLanguage(newLang: Language): Observable<any> {
+  public updateLanguage(newLang: Language): Observable<any> {
     const url = `${this.dataUrl}/languages`;
     return this.http.put<any>(url, newLang, httpOptions).pipe(
       tap(_ => this.log(`language with id ${newLang.id} updated on server.`)),
@@ -204,9 +218,29 @@ export class IntManLibService {
       tap(_ => this.switcherComponents.forEach(sC => this.getLanguages().subscribe(
         langs => sC.langs = langs.filter(lang => lang.selectable)
       ))),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<Language>('updateLanguage'))
     );
   }
+
+  /**
+   * DELETEs a language from the server without checking implications.
+   * */
+  public deleteLanguage (lang: Language | string): Observable<Language> {
+    const id = typeof lang === 'string' ? lang : lang.id;
+    const url = `${this.dataUrl}/languages/${id}`;
+
+    return this.http.delete<Language>(url, httpOptions).pipe(
+      tap(_ => this.log(`Language with id ${id} deleted from server.`)),
+      tap(_ => this.adminComponents.forEach(item => item.langs = item.langs.filter(l => l.id !== id))),
+      tap(_ => this.switcherComponents.forEach(item => item.langs = item.langs.filter(l => l.id !== id))),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
+      catchError(this.handleError<Language>('deleteLanguage'))
+    );
+  }
+
 
   /**
    * POSTs a new Translation to the server
@@ -223,6 +257,8 @@ export class IntManLibService {
       tap((t: Translation) => { this.defLang.subscribe(defLang => { if (defLang.id !== t.langId) {
         this.containers.forEach(c => c.flushTranslations());
       } } ); } ),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<Translation>('addTranslation'))
     );
   }
@@ -230,7 +266,7 @@ export class IntManLibService {
   /**
    * PUTs an updated Translation to the server
    */
-  updateTranslation(newTranslation: Translation): Observable<any> {
+  public updateTranslation(newTranslation: Translation): Observable<any> {
     const url = `${this.dataUrl}/translations`;
     return this.http.put<any>(url, newTranslation, httpOptions).pipe(
       tap(_ => this.log(`translation with id ${newTranslation.id} updated on server.`)),
@@ -242,7 +278,29 @@ export class IntManLibService {
       tap(_ => { this.defLang.subscribe(defLang => { if (defLang.id !== newTranslation.langId) {
         this.containers.forEach(c => c.flushTranslations());
       } } ); } ),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<any>('updateTranslation'))
+    );
+  }
+
+
+  /**
+   * DELETEs a translation from the server
+   * */
+  public deleteTranslation (translation: Translation | string): Observable<Translation> {
+    const id = typeof translation === 'string' ? translation : translation.id;
+    const url = `${this.dataUrl}/translations/${id}`;
+
+    return this.http.delete<Translation>(url, httpOptions).pipe(
+      tap(_ => this.log(`Translation with ${id} deleted from server.`)),
+      tap(_ => this.translationComponents.filter(item => item.containerSetting.id + '-' + item.lang.id === id)
+                                         .forEach(item => { item.ngOnChanges(); })),
+      tap(_ => this.languageComponents.forEach(item => item.deletionRequested = false)),
+      tap(_ => this.containers.forEach(item => { item.flushTranslations(); })),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
+      catchError(this.handleError<Translation>('deleteTranslation'))
     );
   }
 
@@ -255,6 +313,8 @@ export class IntManLibService {
       tap((cS: ContainerSetting) => this.log(`ContainerSetting with id ${cS.id} saved to server.`)),
       // register new setting to admin components
       tap((cS: ContainerSetting) => this.adminComponents.forEach(aC => aC.containerSettings.push(cS))),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<ContainerSetting>('addContainerSetting'))
     );
   }
@@ -262,7 +322,7 @@ export class IntManLibService {
   /**
    * PUTs an updated ContainerSetting to the server
    */
-  updateContainerSetting(id: string, newSetting: ContainerSetting): Observable<any> {
+  public updateContainerSetting(id: string, newSetting: ContainerSetting): Observable<any> {
     const url = `${this.dataUrl}/containerSettings`;
     return this.http.put<any>(url, newSetting, httpOptions).pipe(
       tap(_ => this.log(`ContainerSetting with id ${newSetting.id} updated on server.`)),
@@ -270,8 +330,42 @@ export class IntManLibService {
       tap(_ => this.adminComponents.forEach(aC => {
         aC.containerSettings[aC.containerSettings.findIndex(cS => cS.id === newSetting.id)] = newSetting;
       })),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
       catchError(this.handleError<any>('updateContainerSetting'))
     );
+  }
+
+  /**
+   * DELETEs a ContainerSetting from the server without checking implications
+   * */
+  public deleteContainerSetting (cS: ContainerSetting | string): Observable<ContainerSetting> {
+    const id = typeof cS === 'string' ? cS : cS.id;
+    const url = `${this.dataUrl}/containerSettings/${id}`;
+
+    return this.http.delete<ContainerSetting>(url, httpOptions).pipe(
+      tap(_ => this.log(`ContainerSetting with id ${id} deleted from server.`)),
+      tap(_ => this.adminComponents.forEach(item => item.containerSettings = item.containerSettings.filter(c => c.id !== id))),
+      // gather missing translations
+      tap(_ => this.adminComponents.forEach(aC => aC.collectMissingTranslations())),
+      catchError(this.handleError<ContainerSetting>('deleteContainerSetting'))
+    );
+  }
+
+  /** checks whether we still need a container setting, deletes it otherwise */
+  public checkDeleteContainer (containerId: string) {
+    this.defLang.subscribe(defLang => {
+      this.getAllTranslations(containerId).subscribe(translations => {
+        // delete container if all translations are in standard language and container is not currently registered
+        if (translations.filter(trans => trans.langId !== defLang.id).length === 0) {
+          let containerRegistered = false;
+          this.containers.forEach(c => { if (c.id === containerId) { containerRegistered = true; } });
+          if (!containerRegistered) {
+            this.deleteContainerSetting(containerId).subscribe();
+          }
+        }
+      });
+    });
   }
 
   /**
@@ -296,7 +390,7 @@ export class IntManLibService {
    * Log a message.
    */
   public log(message: string) {
-    console.log('Message: ' + message);
+    // console.log('Message: ' + message);
   }
 
 /**

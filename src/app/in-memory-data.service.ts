@@ -37,7 +37,7 @@ export class InMemoryDataService implements InMemoryDbService {
           contents: ['Owner: ', 'Mario Manichino'], preferAltLang: [false, true] },
         { id: 'CasaSubtitle-en', containerId: 'CasaSubtitle', langId: 'en',
           contents: ['Owner: Mario Manichino'], preferAltLang: [false] },
-        { id: 'CasaSubtitle-en-GB', containerId: 'CasaDescription', langId: 'en-GB',
+        { id: 'CasaDescription-en-GB', containerId: 'CasaDescription', langId: 'en-GB',
           contents: [
             'Our Pizza is a unique creation only available here. \
 There is a reason for us being no real pizza service: We\'re purely fictional, \
@@ -54,7 +54,11 @@ Some may ask themselves how the pizza is grown by the tree. Well, that\'s someth
         { id: 'CasaOrder-fr-FR', containerId: 'CasaOrder', langId: 'fr-FR',
           contents: ['Commande en ligne'], preferAltLang: [false] },
         { id: 'CasaOffer-en-GB', containerId: 'CasaOffer', langId: 'en-GB',
-          contents: ['Choose from our rich offer:'], preferAltLang: [false] }
+          contents: ['Choose from our rich offer:'], preferAltLang: [false] },
+        { id: 'NotUsed-de-DE', containerId: 'NotUsed', langId: 'de-DE',
+        contents: ['Dummy-Text für unbenutzten Container.'], preferAltLang: [false] },
+        { id: 'NotUsed-en-GB', containerId: 'NotUsed', langId: 'en-GB',
+        contents: ['Dummy-Text for unused Container.'], preferAltLang: [false] }
       ],
       containerSettings : [
         {
@@ -65,6 +69,11 @@ Some may ask themselves how the pizza is grown by the tree. Well, that\'s someth
         {
           id: 'CasaSubtitle',
           domSignature: '<P>#text</P>',
+          contains: 1
+        },
+        {
+          id: 'NotUsed',
+          domSignature: '<span>#text</span>',
           contains: 1
         }
       ]

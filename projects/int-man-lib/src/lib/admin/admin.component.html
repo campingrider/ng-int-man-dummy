@@ -2,15 +2,38 @@
 
   <h1>Internationalisation Manager: Verwaltung</h1>
 
-  <div class="intmanAdminMessages">
-    <intman-admin-message *ngFor="let m of messages" [message]="m"></intman-admin-message>
-  </div>
+  <details class="intmanAdminMessages intmanAdminTileContainer">
+    <summary>
+      <h2>Hinweise zu fehlenden Übersetzungen</h2>
+    </summary>
+    <form class="intmanAdminTileContainer">
+      <div *ngFor="let m of missingTranslations" class="intman-tile">
+        <fieldset>
+          <legend>Container {{m['containerId']}}</legend>
+          <p>In folgenden auswählbaren Sprachen ist keine Übersetzung vorhanden:</p>
+          <ul>
+            <li *ngFor="let lT of m['langTitles']">{{lT}}</li>
+          </ul>
+        </fieldset>
+      </div>
+    </form>
+  </details>
+
   <details>
     <summary>
       <h2>Sprachen: Verwaltung</h2>
     </summary>
     <form class="intmanAdminLanguages intmanAdminTileContainer">
       <intman-admin-language *ngFor="let l of langs" [lang]="l"></intman-admin-language>
+      <div class="intman-tile">
+        <fieldset>
+          <legend>Neue Sprache anlegen</legend>
+          <p><label>Sprach-ID nach <a href="https://tools.ietf.org/html/rfc1766">RFC1766</a>: <input type="text" name="newLangId" [(ngModel)]="newLangId" (keyup)="detectChangeOnNewLang()" (input)="detectChangeOnNewLang()" (change)="detectChangeOnNewLang()"></label></p>
+          <p>Die Sprach-ID kann im Nachhinein <strong>nicht</strong> geändert werden.</p>
+          <p class="intman-language-buttons intman-buttons"><button *ngIf="changedSomethingOnNewLang && newLangMeetsRequirements" (click)="addLang()">Änderungen speichern!</button></p>
+          <p *ngIf="!newLangMeetsRequirements">Die ID muss den Regeln des RFC1766 entsprechen.</p>
+        </fieldset>
+      </div>
     </form>
   </details>
 
