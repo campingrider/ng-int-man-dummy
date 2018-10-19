@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { IntManLibComponent } from './int-man-lib.component';
 import { AdminComponent } from './admin/admin.component';
 import { IdDirective } from './id.directive';
 import { SwitcherComponent } from './switcher/switcher.component';
@@ -16,7 +15,6 @@ import { AdminTranslationComponent } from './admin-translation/admin-translation
     HttpClientModule
   ],
   declarations: [
-    IntManLibComponent,
     AdminComponent,
     IdDirective,
     SwitcherComponent,
