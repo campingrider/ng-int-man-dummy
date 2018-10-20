@@ -19,11 +19,9 @@
     ],
     "paths": {
       "int-man-lib": [
-        "dist/int-man-lib",
         "dist/int-man-lib"
       ],
       "int-man-lib/*": [
-        "dist/int-man-lib/*",
         "dist/int-man-lib/*"
       ]
     }

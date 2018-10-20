@@ -1,6 +1,6 @@
 {
   "name": "ng-int-man-dummy",
-  "version": "0.0.0",
+  "version": "0.5.0-beta",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
