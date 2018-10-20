@@ -9,7 +9,7 @@
     <form class="intmanAdminTileContainer">
       <div *ngFor="let m of missingTranslations" class="intman-tile">
         <fieldset>
-          <legend>Container {{m['containerId']}}</legend>
+          <legend>Container {{m.containerId}}</legend>
           <p>In folgenden auswählbaren Sprachen ist keine Übersetzung vorhanden:</p>
           <ul>
             <li *ngFor="let lT of m['langTitles']">{{lT}}</li>

@@ -14,14 +14,14 @@
       <fieldset class="meal" *ngFor="let meal of meals; let m=index"  intmanId="CasaMeal{{m}}">
         <legend>{{meal.name}}</legend>
         <p><img src="{{meal.icon}}"/><span>{{meal.description}}</span></p>
-        <input type="hidden" name="names[{{m}}]" value="{{meal.name}}"/>
+        <input type="hidden" [name]="'names['+m+']'" value="{{meal.name}}"/>
         <p *ngIf="meal.extras.length>0">Wählen Sie zusätzlich aus folgenden Extras:</p>
         <ul *ngIf="meal.extras.length>0">
           <li *ngFor="let extra of meal.extras">
-            <input type="checkbox" name="extras[{{m}}]" value="{{extra}}"/><span>{{extra}}</span>
+            <input type="checkbox" [name]="'extras['+m+']'" value="{{extra}}"/><span>{{extra}}</span>
           </li>
         </ul>
-        <p>Gewünschte Anzahl: <input type="number" name="quantity[{{m}}]" value="0"/></p>
+        <p>Gewünschte Anzahl: <input type="number" [name]="'quantity['+m+']'" value="0"/></p>
       </fieldset>
     </div>
     <fieldset class="buttons">
